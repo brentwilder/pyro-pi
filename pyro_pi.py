@@ -458,7 +458,7 @@ def send_all_logs(server):  # rsync all logs
 def main(n_points, sleep_time, server=None, sensor_name=None):  # Log humid & temp & rad and send via cellular connection
 	'''
 	RPI turns on 1300 to 1305 each day
-	takes 60 measurements (1 per second)
+	takes xx measurements 
 	after which it will send the data.. then shut down
 	'''
 	# Make/check for data directory for this particular Pi
@@ -505,7 +505,7 @@ def main(n_points, sleep_time, server=None, sensor_name=None):  # Log humid & te
 if __name__ == '__main__':
     '''
     This program will collect temperature/humidity/SW RAD..
-    Data are collected between 1300-1302 and then sent to server.
+    Data are collected and then sent to server.
     '''
     # temperature and humidity logging parameters
     sleep_time = 0.1  # [s] record data every sleep_time seconds
