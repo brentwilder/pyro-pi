@@ -17,14 +17,14 @@ import struct
 
 # --------------------------------------------------------------------
 # Strings for pyranometer
-GET_VOLT = str.encode('\x55!')
-READ_CALIBRATION = str.encode('\x83!')
-SET_CALIBRATION = str.encode('\x84%s%s!')
-READ_SERIAL_NUM = str.encode('\x87!')
-GET_LOGGING_COUNT = str.encode('\xf3!')
-GET_LOGGED_ENTRY = str.encode('\xf2%s!')
-SET_LOGGING_INTERVAL = str.encode('\xf0%s!')
-ERASE_LOGGED_DATA = str.encode('\xf4!')
+GET_VOLT = str.encode('55 21')
+READ_CALIBRATION = str.encode('83 21')
+SET_CALIBRATION = str.encode('84 XX XX XX XX YY YY YY YY 21')
+READ_SERIAL_NUM = str.encode('87 21')
+GET_LOGGING_COUNT = str.encode('f3 21')
+GET_LOGGED_ENTRY = str.encode('f2 XX XX XX XX 21')
+SET_LOGGING_INTERVAL = str.encode('f1 21')
+ERASE_LOGGED_DATA = str.encode('f4 21')
 # --------------------------------------------------------------------
 
 class Pyranometer(object):
