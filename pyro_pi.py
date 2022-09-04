@@ -8,12 +8,11 @@ import logging
 import re
 import subprocess
 import signal
-#import urllib2 needed for checking internet is on (not working)
 import sys
 from serial import Serial
 import struct
 
-# This code was heavily borrwed from work done by Thomas Van Der Weide's MS Thesis
+# !! This code was adapted from work done by Thomas Van Der Weide's MS Thesis !!
 
 # --------------------------------------------------------------------
 # Strings for pyranometer
@@ -300,7 +299,6 @@ def log_pyranometer_data(sleep_time, n_points, data_dir, filename):
     return filename, data_dir
 # --------------------------------------------------------------------
 
-
 def make_serial_directory():
     ''' 
     Output data file has date/time stamp in filename.
@@ -321,7 +319,6 @@ def make_serial_directory():
     return data_dir
 # --------------------------------------------------------------------
 
-
 def checkOutputDirectory(data_dir):
     '''
     Check the output directory exists and if not, create it.
@@ -333,26 +330,28 @@ def checkOutputDirectory(data_dir):
         logging.info('Found directory %s', data_dir)
 # --------------------------------------------------------------------
 
-def start_log():
+def start_log(doy):
     '''
-    open the log file and start tracking events, if opened in main() 
-    it can be called anywhere
+    Input
+    doy (str) : day of year called in by `filename` variable in main
+    
+    open the log file and start tracking events,
+    if opened in main() it can be called anywhere
     '''
     # Make the log file name
-    log_file = '%s.log' % time.strftime("%Y_%m_%d")
+    log_file = doy +'.log'
     # Open the log file and set parameters
-    logging.basicConfig(filename=log_file, filemode='a', \
-                        level=logging.DEBUG, \
-                        format='%(asctime)s: %(levelname)s: %(name)s: %(message)s', \
-                        datefmt='%Y-%m-%d %H:%M:%S', \
-                        stream=sys.stdout )
+    logging.basicConfig(filename=log_file, level=logging.DEBUG,
+                        format='%(asctime)s: %(levelname)s: %(name)s: %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
     logging.info('====================================')
-    logging.info('Starting to log temp, humidity, and SW radiation...')
+    logging.info('STARTING PYRO-PI DATA LOGGER........')
+    logging.info('====================================')
     
     return log_file
 # --------------------------------------------------------------------
 
-
+# STILL TO DO IS TEST THIS SAKIS THING
 def connect_sakis():
     '''
     Connect the 3G modem to the network.
@@ -361,10 +360,10 @@ def connect_sakis():
     
     internet_flag = False
     i_count = 0
-    while internet_flag is False and i_count < 60:
+    while internet_flag is False and i_count < 30:
         try:
             #subprocess.call("sudo /usr/bin/modem3g/umtskeeper/umtskeeper --devicename 'Huawei' --nat 'no' &", shell=True)
-            time.sleep(10)
+            time.sleep(1)
             internet_flag = internet_on()
             i_count += 1
             logging.info("Turning on SAKIS: attempt %s", i_count)
@@ -378,128 +377,64 @@ def connect_sakis():
     return internet_flag
 # --------------------------------------------------------------------
 
-
-def disconnect_sakis():
-    '''
-    Disconnect 3G modem from the netowrk.
-    '''
-    #subprocess.call("sudo /usr/bin/modem3g/umtskeeper/umtskeeper stop", shell=True)
-    #logging.info('Disconnnected from internet')
-    pass
-    return
-# --------------------------------------------------------------------
-
-
 def internet_on():
     '''
     Ping google.com to determine if the network connection is up.
     '''
     try:
-        urllib2.urlopen('http://216.58.192.142', timeout=5)  # google.com
+        os.system('ping -c 1 google.com')  # google.com
         internet_flag = True
-    except urllib2.URLError as exc:
+    except:
         internet_flag = False
     return internet_flag
+
+
 # --------------------------------------------------------------------
 
-
-def send_ht_data(ht_data_dir, ht_file, server):
+def main(n_points, sleep_time):  # Log humid & temp & rad and send via cellular connection
     '''
-    Transfer humidity and temperature (HT) data to the remote server.
-    Transfer is done using rsync command.
+    RPI turns on 1300 to 1305 each day
+    takes xx measurements 
+    after which it will send the data.. then shut down
     '''
-    success = False
-    try:
-        # sync data directory
-        line = "rsync -vahz --partial --inplace " + ht_file + " " + server
-        logging.info('%s',line)
-        subprocess.call(line, shell=True)
-        logging.info('Transferred %s to remote server', ht_file)
-        success = True
-    except:
-        logging.error('Could not transfer %s to remote server', ht_file)
-    return success
-# --------------------------------------------------------------------
+    # Make/check for data directory for this particular Pi
+    data_dir = make_serial_directory()
 
+    # filename is doy
+    filename = str(datetime.datetime.now().timetuple().tm_yday)
 
-def send_log_data(log_file, server):
-    # transfer log data to server
-    try:
-        # sync log file
-        line = "rsync -vahz --partial --inplace " + log_file + " " + server
-        logging.info('%s',line)
-        subprocess.call(line, shell=True)
-        logging.info('Transferred %s to remote server', log_file)
-    except:
-        logging.error('Could not transfer %s to remote server', log_file)
-    return
-# --------------------------------------------------------------------
+    # Start log file for the day
+    start_log(filename)
 
-def send_all_logs(server):  # rsync all logs
-    fn = '/home/pi/2018*'
-    logging.info("Attempting to rsync all log files.")
-    transfer = "rsync -vahz --partial --inplace --append-verify " + fn + " " + server
-    logging.info('%s', transfer)
+    # Log the humidity and temperature data 
+    log_humid_temp_data(sleep_time, n_points, data_dir, filename) 
+    
+    # Log the Pyranometer data 
+    log_pyranometer_data(sleep_time, n_points, data_dir, filename)
+
+    # Now begin file transfer 	
     connected = connect_sakis()
-    try:
-        if connected:
-            process = subprocess.call(transfer, shell=True)
-            logging.info('Log file transfer complete')
-        else:
-            logging.error('Could not connect to internet to send log files.')
-            pass
-    except:
-        logging.error('Something wrong with the log transfer.')
-        pass
+    if connected:
+        # send the data to AWS (simple case)
+        os.system('/home/pi/.local/bin/aws '+data_dir+'/'+filename+'_ht.pkl s3://brent-snow-data')
+        os.system('/home/pi/.local/bin/aws '+data_dir+'/'+filename+'_pyr.pkl s3://brent-snow-data')
+        os.system('/home/pi/.local/bin/aws '+data_dir+'/'+filename+'.log s3://brent-snow-data')
+    else: # more complex case...
+        # keep trying until powers off
+        while connected is False:
+            connected = connect_sakis()
+            if connected:
+                os.system('/home/pi/.local/bin/aws '+data_dir+'/'+filename+'_ht.pkl s3://brent-snow-data')
+                os.system('/home/pi/.local/bin/aws '+data_dir+'/'+filename+'_pyr.pkl s3://brent-snow-data')
+                os.system('/home/pi/.local/bin/aws '+data_dir+'/'+filename+'.log s3://brent-snow-data')
+            else:
+                # aaaand just keeep tryin. hopefully this is minimal..
+                logging.info('Having trouble connecting trying again...')
+            
+    # shutdown the pi assuming finished
+    #os.system('sudo shutdown -h now')
+    print('pretend shutdown')
 
-# --------------------------------------------------------------------
-
-
-def main(n_points, sleep_time, server=None, sensor_name=None):  # Log humid & temp & rad and send via cellular connection
-	'''
-	RPI turns on 1300 to 1305 each day
-	takes xx measurements 
-	after which it will send the data.. then shut down
-	'''
-	# Make/check for data directory for this particular Pi
-	data_dir = make_serial_directory()
-	
-	# filename is doy
-	filename = str(datetime.datetime.now().timetuple().tm_yday)
-	
-	# Log the humidity and temperature data 
-	ht_file, ht_data_dir = log_humid_temp_data(sleep_time, n_points, data_dir, filename) 
-		
-	# Log the Pyranometer data 
-	pyr_file, pyr_data_dir = log_pyranometer_data(sleep_time, n_points, data_dir, filename)
-  
-	# Now begin file transfer 	
-	#connected = connect_sakis()
-	
-	# Send pyra data to my server
-	#try:
-	#	success = send_ht_data(pyr_data_dir, pyr_file, server)
-	#		except:
-	#			logging.error("Could not send pyranometer data.")
-	#			pass
-				
-	# Send Temp/RH data to my server
-	#try:
-	#	success = send_ht_data(ht_data_dir, ht_file, server)
-	#		except:
-	#			logging.error("Could not send Temp/RH data.")
-	#			pass
-	# Send log data to my server
-	#try:
-	#	success = send_log_data(log_file, server)
-	#		except:
-	#			logging.error("Could not send log file.")
-	#			pass
-			
-	# shutdown the pi
-	#os.system('sudo shutdown -h now')
-	print('pretend shutdown')
-	
 # --------------------------------------------------------------------
 # call main() function to run program
 if __name__ == '__main__':
@@ -509,14 +444,7 @@ if __name__ == '__main__':
     '''
     # temperature and humidity logging parameters
     sleep_time = 0.1  # [s] record data every sleep_time seconds
-    n_points = 5  # [points] number of points to record
-
-    # server name and directory location on remote server
-    #server = "thomasvanderweide@tomservo.boisestate.edu:/data/2018/"
-    #line = "cat sensor_name.txt"
-    #directory = subprocess.check_output(line, shell=True)  # get the filename
-    #directory = os.linesep.join([s for s in directory.splitlines() if s])  # remove extra lines
-    #server = server + directory + "/"
+    n_points = 30  # [points] number of points to record
 
     # run the main program
     main(n_points, sleep_time)
