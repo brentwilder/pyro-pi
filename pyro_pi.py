@@ -280,7 +280,7 @@ def log_pyranometer_data(sleep_time, n_points, data_dir, filename):
         
     try:
         filename = os.path.join(data_dir, filename + '_pyr.pkl')  # this gives same name as image file
-        f = open(filename, 'wb')
+        f = open(filename, 'w')
         pickle.dump(data, f)
         f.close()
         logging.info('Wrote data file: %s', filename)
