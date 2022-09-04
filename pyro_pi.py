@@ -44,6 +44,7 @@ class Pyranometer(object):
         # port = 'COM4'
         port = '/dev/ttyACM0'
         self.pyranometer = Serial(port, 115200, timeout=0.5)
+	print(self.pyranometer)
         try:
             self.pyranometer.write(READ_CALIBRATION)
             multiplier = self.pyranometer.read(5)[1:]
