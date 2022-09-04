@@ -486,7 +486,7 @@ def main(n_points, sleep_time, server=None, sensor_name=None):  # Log humid & te
 	# shutdown the pi
 	os.system('sudo shutdown -h now')
 	
-    return
+return
 	
 # --------------------------------------------------------------------
 # call main() function to run program
