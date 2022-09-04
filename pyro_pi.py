@@ -249,7 +249,7 @@ def log_humid_temp_data(sleep_time, n_points, data_dir, filename):
     
     try:
         filename = os.path.join(data_dir, filename + '_ht.pkl')  # this gives same name as image file
-        f = open(filename, 'w')
+        f = open(filename, 'wb')
         pickle.dump(data, f)
         f.close()
         logging.info('Wrote data file: %s', filename)
@@ -280,7 +280,7 @@ def log_pyranometer_data(sleep_time, n_points, data_dir, filename):
         
     try:
         filename = os.path.join(data_dir, filename + '_pyr.pkl')  # this gives same name as image file
-        f = open(filename, 'w')
+        f = open(filename, 'wb')
         pickle.dump(data, f)
         f.close()
         logging.info('Wrote data file: %s', filename)
