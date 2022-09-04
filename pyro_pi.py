@@ -63,8 +63,8 @@ class Pyranometer(object):
                 return
         try:
             self.pyranometer.write(READ_CALIBRATION)
-            print(self.pyranometer)
             multiplier = self.pyranometer.read(5)[1:]
+            print(multiplier)
             offset = self.pyranometer.read(4)
             multiplier = struct.unpack('<f', multiplier)[0]
             offset = struct.unpack('<f', offset)[0]
