@@ -280,8 +280,10 @@ def log_pyranometer_data(sleep_time, n_points, data_dir, filename):
     p1_out = []
     i_point = 0
     while i_point < n_points:
-        p0_out.append(my_pyranometer0.get_micromoles())
-        p1_out.append(my_pyranometer1.get_micromoles())
+        # Divide by 4.6 to convert to W/m^2
+        # https://www.researchgate.net/post/Can-I-convert-PAR-photo-active-radiation-value-of-micro-mole-M2-S-to-Solar-radiation-in-Watt-m2
+        p0_out.append((my_pyranometer0.get_micromoles()) / 4.6)
+        p1_out.append((my_pyranometer1.get_micromoles()) / 4.6)
         time.sleep(sleep_time)
         i_point += 1
         
