@@ -28,21 +28,22 @@ ERASE_LOGGED_DATA = b'\xf4!'
 # --------------------------------------------------------------------
 
 class Pyranometer(object):
-    def __init__(self):
+    def __init__(self, port):
         """Initializes class variables, and attempts to connect to device"""
+        self.port = port
         self.pyranometer = None
         self.offset = 0.0
         self.multiplier = 0.0
-        self.connect_to_device()
+        self.connect_to_device(port = port)
 
-    def connect_to_device(self):
+    def connect_to_device(self, port):
         """This function creates a Serial connection with the defined COM port
         and attempts to read the calibration (offset and multiplier) values"""
 
         """you'll have to check your device manager and put the actual
         COM port here"""
         # port = 'COM4'
-        port = '/dev/ttyACM0'
+        #port = '/dev/ttyACM0' *using two now so turning to function --bw
         self.pyranometer = Serial(port, 115200, timeout=0.5)
         try:
             self.pyranometer.write(READ_CALIBRATION)
@@ -265,19 +266,27 @@ def log_pyranometer_data(sleep_time, n_points, data_dir, filename):
     Write pyranometer data to file
     '''
     logging.info('Starting to log pyranometer...')
-    # instantiate pyranometer object
-    my_pyranometer = Pyranometer() 
-    serial = my_pyranometer.read_serial()
-    offset,multiplier = my_pyranometer.read_calibration()
     
-    p_out = []  # allocate blank list for data vector
+    # create pyranometer OBJECTS (both of em!:-D )
+    my_pyranometer0 = Pyranometer('/dev/ttyACM0')
+    my_pyranometer1 = Pyranometer('/dev/ttyACM1')  
+
+    serial0 = my_pyranometer0.read_serial()
+    offset0,multiplier0 = my_pyranometer0.read_calibration()
+
+    serial1 = my_pyranometer1.read_serial()
+    offset1,multiplier1 = my_pyranometer1.read_calibration()
+    
+    p0_out = []  # allocate blank lists for data vectors
+    p1_out = []
     i_point = 0
     while i_point < n_points:
-        p_out.append(my_pyranometer.get_micromoles())
+        p0_out.append(my_pyranometer0.get_micromoles())
+        p1_out.append(my_pyranometer1.get_micromoles())
         time.sleep(sleep_time)
         i_point += 1
         
-        data = [serial, offset, multiplier, p_out]
+        data = [serial0, offset0, multiplier0, p0_out, serial1, offset1, multiplier1, p1_out]
         
     try:
         filename = os.path.join(data_dir, filename + '_pyr.pkl')  # this gives same name as image file
@@ -457,10 +466,10 @@ def main(n_points, sleep_time, server=None, sensor_name=None):  # Log humid & te
 	# filename is doy
 	filename = str(datetime.datetime.now().timetuple().tm_yday)
 	
-	# Log the temperature and humidity data -- give same name as RAW file
+	# Log the humidity and temperature data 
 	ht_file, ht_data_dir = log_humid_temp_data(sleep_time, n_points, data_dir, filename) 
 		
-	# Log the Pyranometer data right after taking picture
+	# Log the Pyranometer data 
 	pyr_file, pyr_data_dir = log_pyranometer_data(sleep_time, n_points, data_dir, filename)
   
 	# Now begin file transfer 	
