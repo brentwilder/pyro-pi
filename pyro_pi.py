@@ -497,7 +497,7 @@ if __name__ == '__main__':
     Data are collected between 1300-1302 and then sent to server.
     '''
     # temperature and humidity logging parameters
-    sleep_time = 1  # [s] record data every sleep_time seconds
+    sleep_time = 0.1  # [s] record data every sleep_time seconds
     n_points = 60  # [points] number of points to record
 
     # server name and directory location on remote server
