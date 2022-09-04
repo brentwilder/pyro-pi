@@ -454,10 +454,10 @@ def main(n_points, sleep_time, server=None, sensor_name=None):  # Log humid & te
 	data_dir = make_serial_directory()
 	
 	# filename is doy
-	filename = str(datetime.datetime.now().timetuple().tm_yday
+	filename = str(datetime.datetime.now().timetuple().tm_yday)
 	
 	# Log the temperature and humidity data -- give same name as RAW file
-	log_humid_temp_data(sleep_time, n_points, data_dir, filename) 
+	ht_file, ht_data_dir = log_humid_temp_data(sleep_time, n_points, data_dir, filename) 
 		
 	# Log the Pyranometer data right after taking picture
 	#pyr_file, pyr_data_dir = log_pyranometer_data(sleep_time, n_points, data_dir, filename)
