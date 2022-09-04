@@ -50,7 +50,7 @@ class Pyranometer(object):
             offset = self.pyranometer.read(4)
             self.multiplier = struct.unpack('<f', multiplier)[0]
             self.offset = struct.unpack('<f', offset)[0]
-        except (IOError, struct.Error), data:
+        except (IOError, struct.Error):
             self.pyranometer = None
 
     def read_calibration(self):
@@ -67,7 +67,7 @@ class Pyranometer(object):
             offset = self.pyranometer.read(4)
             multiplier = struct.unpack('<f', multiplier)[0]
             offset = struct.unpack('<f', offset)[0]
-        except (IOError, struct.Error), data:
+        except (IOError, struct.Error):
             self.pyranometer = None
         return offset, multiplier
 
@@ -84,7 +84,7 @@ class Pyranometer(object):
         try:
             self.pyranometer.write(READ_SERIAL_NUM)
             serial = self.pyranometer.read(5)[1:]
-        except IOError, data:
+        except IOError:
             # dummy value to know something went wrong. could raise an
             # exception here alternatively
             return 9999
@@ -109,7 +109,7 @@ class Pyranometer(object):
         try:
             self.pyranometer.write(GET_VOLT)
             response = self.pyranometer.read(5)[1:]
-        except IOError, data:
+        except IOError:
             # dummy value to know something went wrong. could raise an
             # exception here alternatively
             return 9999
