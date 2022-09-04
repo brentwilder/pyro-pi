@@ -50,7 +50,7 @@ class Pyranometer(object):
             offset = self.pyranometer.read(4)
             self.multiplier = struct.unpack('<f', multiplier)[0]
             self.offset = struct.unpack('<f', offset)[0]
-        except (IOError, struct.Error):
+        except (IOError):
             self.pyranometer = None
 
     def read_calibration(self):
