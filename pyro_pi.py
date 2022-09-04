@@ -7,7 +7,6 @@ import pickle
 import logging
 import re
 import subprocess
-import pprint
 import signal
 import urllib2
 import sys
@@ -45,7 +44,6 @@ class Pyranometer(object):
         # port = 'COM4'
         port = '/dev/ttyACM0'
         self.pyranometer = Serial(port, 115200, timeout=0.5)
-        print "Connected to pyranometer at %s" % self.pyranometer.name
         try:
             self.pyranometer.write(READ_CALIBRATION)
             multiplier = self.pyranometer.read(5)[1:]
@@ -53,7 +51,6 @@ class Pyranometer(object):
             self.multiplier = struct.unpack('<f', multiplier)[0]
             self.offset = struct.unpack('<f', offset)[0]
         except (IOError, struct.Error), data:
-            print data
             self.pyranometer = None
 
     def read_calibration(self):
@@ -71,7 +68,6 @@ class Pyranometer(object):
             multiplier = struct.unpack('<f', multiplier)[0]
             offset = struct.unpack('<f', offset)[0]
         except (IOError, struct.Error), data:
-            print data
             self.pyranometer = None
         return offset, multiplier
 
@@ -89,7 +85,6 @@ class Pyranometer(object):
             self.pyranometer.write(READ_SERIAL_NUM)
             serial = self.pyranometer.read(5)[1:]
         except IOError, data:
-            print data
             # dummy value to know something went wrong. could raise an
             # exception here alternatively
             return 9999
@@ -115,7 +110,6 @@ class Pyranometer(object):
             self.pyranometer.write(GET_VOLT)
             response = self.pyranometer.read(5)[1:]
         except IOError, data:
-            print data
             # dummy value to know something went wrong. could raise an
             # exception here alternatively
             return 9999
@@ -227,7 +221,6 @@ def logSensorData(n_average, sleep_time):
         # not correct in the getSensorData() call.
         try:
             RH, T = getSensorData()
-            #print time.strftime("%H:%M:%S:"), int(i_point), RH, T
             RH_out.append(RH)
             T_out.append(T)
 
@@ -261,7 +254,6 @@ def log_humid_temp_data(sleep_time, n_points, data_dir, filename):
         f.close()
         logging.info('Wrote data file: %s', filename)
     except IOError:
-        #print "Error: Could not write file " + filename
         logging.error('Could not write file %s', filename)
     return filename, data_dir
 # --------------------------------------------------------------------
@@ -293,7 +285,6 @@ def log_pyranometer_data(sleep_time, n_points, data_dir, filename):
         f.close()
         logging.info('Wrote data file: %s', filename)
     except IOError:
-        #print "Error: Could not write file " + filename
         logging.error('Could not write file %s', filename)
     return filename, data_dir
 # --------------------------------------------------------------------
