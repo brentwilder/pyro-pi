@@ -451,8 +451,6 @@ def main(n_points, sleep_time, server=None, sensor_name=None):  # Log humid & te
 	after which it will send the data.. then shut down
 	'''
 	
-	# start log file
-	log_file = start_log()
 	
 	# Log the temperature and humidity data -- give same name as RAW file
 	ht_file, ht_data_dir = log_humid_temp_data(sleep_time, n_points, data_dir, filename) 
@@ -492,7 +490,7 @@ def main(n_points, sleep_time, server=None, sensor_name=None):  # Log humid & te
 if __name__ == '__main__':
     '''
     This program will collect temperature/humidity/SW RAD..
-    Data are collected between 1300-1302 and then sent to server with logs.
+    Data are collected between 1300-1302 and then sent to server.
     '''
     # temperature and humidity logging parameters
     sleep_time = 1  # [s] record data every sleep_time seconds
