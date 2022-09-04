@@ -460,7 +460,7 @@ def main(n_points, sleep_time, server=None, sensor_name=None):  # Log humid & te
 	ht_file, ht_data_dir = log_humid_temp_data(sleep_time, n_points, data_dir, filename) 
 		
 	# Log the Pyranometer data right after taking picture
-	#pyr_file, pyr_data_dir = log_pyranometer_data(sleep_time, n_points, data_dir, filename)
+	pyr_file, pyr_data_dir = log_pyranometer_data(sleep_time, n_points, data_dir, filename)
   
 	# Now begin file transfer 	
 	#connected = connect_sakis()
