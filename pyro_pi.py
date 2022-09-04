@@ -451,7 +451,7 @@ def main(n_points, sleep_time, server=None, sensor_name=None):  # Log humid & te
 	after which it will send the data.. then shut down
 	'''
 	# Make/check for data directory for this particular Pi
-        data_dir = make_serial_directory()
+	data_dir = make_serial_directory()
 	
 	# filename is doy
 	filename = str(datetime.datetime.now().timetuple().tm_yday
