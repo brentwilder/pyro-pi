@@ -8,7 +8,7 @@ import logging
 import re
 import subprocess
 import signal
-import urllib2
+#import urllib2 needed for checking internet is on (not working)
 import sys
 from serial import Serial
 import struct
