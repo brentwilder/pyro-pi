@@ -280,7 +280,7 @@ def log_pyranometer_data(sleep_time, n_points, data_dir, filename):
         
     try:
         filename = os.path.join(data_dir, filename + '_pyr.pkl')  # this gives same name as image file
-        f = open(filename, 'w')
+        f = open(filename, 'wb')
         pickle.dump(data, f)
         f.close()
         logging.info('Wrote data file: %s', filename)
@@ -497,7 +497,7 @@ if __name__ == '__main__':
     Data are collected between 1300-1302 and then sent to server.
     '''
     # temperature and humidity logging parameters
-    sleep_time = 0.01  # [s] record data every sleep_time seconds
+    sleep_time = 0.1  # [s] record data every sleep_time seconds
     n_points = 5  # [points] number of points to record
 
     # server name and directory location on remote server
