@@ -349,32 +349,7 @@ def start_log(doy):
     logging.info('====================================')
     
     return log_file
-# --------------------------------------------------------------------
 
-# STILL TO DO IS TEST THIS SAKIS THING
-def connect_sakis():
-    '''
-    Connect the 3G modem to the network.
-    Return a True if the connection is setup, otherwise False.
-    '''
-    
-    internet_flag = False
-    i_count = 0
-    while internet_flag is False and i_count < 30:
-        try:
-            #subprocess.call("sudo /usr/bin/modem3g/umtskeeper/umtskeeper --devicename 'Huawei' --nat 'no' &", shell=True)
-            time.sleep(1)
-            internet_flag = internet_on()
-            i_count += 1
-            logging.info("Turning on SAKIS: attempt %s", i_count)
-            time.sleep(1)
-        except:
-            time.sleep(1)
-    if internet_flag:
-        logging.info('Connnected to internet')
-    else:
-        logging.warning('Could not connect to internet')
-    return internet_flag
 # --------------------------------------------------------------------
 
 def internet_on():
@@ -382,12 +357,11 @@ def internet_on():
     Ping google.com to determine if the network connection is up.
     '''
     try:
-        os.system('ping -c 1 google.com')  # google.com
+        os.system('sudo /opt/qmi_files/quectel-CM/quectel-CM -s apn_here ping -c 1 google.com')
         internet_flag = True
     except:
         internet_flag = False
     return internet_flag
-
 
 # --------------------------------------------------------------------
 
@@ -412,17 +386,19 @@ def main(n_points, sleep_time):  # Log humid & temp & rad and send via cellular 
     # Log the Pyranometer data 
     log_pyranometer_data(sleep_time, n_points, data_dir, filename)
 
-    # Now begin file transfer 	
-    connected = connect_sakis()
-    if connected:
+    # Now begin file transfer
+    # Check if connected
+    connected = internet_on() # ? (T or F)
+    if connected is True:
         # send the data to AWS (simple case)
         os.system('/home/pi/.local/bin/aws '+data_dir+'/'+filename+'_ht.pkl s3://brent-snow-data')
         os.system('/home/pi/.local/bin/aws '+data_dir+'/'+filename+'_pyr.pkl s3://brent-snow-data')
         os.system('/home/pi/.local/bin/aws '+data_dir+'/'+filename+'.log s3://brent-snow-data')
+    
     else: # more complex case...
         # keep trying until powers off
         while connected is False:
-            connected = connect_sakis()
+            connected = internet_on()
             if connected:
                 os.system('/home/pi/.local/bin/aws '+data_dir+'/'+filename+'_ht.pkl s3://brent-snow-data')
                 os.system('/home/pi/.local/bin/aws '+data_dir+'/'+filename+'_pyr.pkl s3://brent-snow-data')
@@ -444,7 +420,7 @@ if __name__ == '__main__':
     '''
     # temperature and humidity logging parameters
     sleep_time = 0.1  # [s] record data every sleep_time seconds
-    n_points = 30  # [points] number of points to record
+    n_points = 60  # [points] number of points to record
 
     # run the main program
     main(n_points, sleep_time)
