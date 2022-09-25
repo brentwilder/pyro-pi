@@ -393,7 +393,6 @@ def main(n_points, sleep_time):  # Log humid & temp & rad and send via cellular 
         # send the data to AWS (simple case)
         os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'_ht.pkl s3://brent-snow-data')
         os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'_pyr.pkl s3://brent-snow-data')
-        os.system('/home/pi/.local/bin/aws s3 cp /home/pi/logs/'+filename+'.log s3://brent-snow-data')
     
     else: # more complex case...
         # keep trying until powers off
@@ -402,7 +401,6 @@ def main(n_points, sleep_time):  # Log humid & temp & rad and send via cellular 
             if connected:
                 os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'_ht.pkl s3://brent-snow-data')
                 os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'_pyr.pkl s3://brent-snow-data')
-                os.system('/home/pi/.local/bin/aws s3 cp /home/logs/'+filename+'.log s3://brent-snow-data')
             else:
                 # aaaand just keeep tryin. hopefully this is minimal..
                 logging.info('Having trouble connecting trying again...')
