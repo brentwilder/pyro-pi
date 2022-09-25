@@ -330,20 +330,20 @@ def checkOutputDirectory(data_dir):
         logging.info('Found directory %s', data_dir)
 # --------------------------------------------------------------------
 
-def start_log(doy):
+def start_log(year_doy):
     '''
     Input
-    doy (str) : day of year called in by `filename` variable in main
+    year_doy (str) : year & day of year called in by `filename` variable in main
     
     open the log file and start tracking events,
     if opened in main() it can be called anywhere
     '''
     # Make the log file name
-    log_file = doy +'.log'
+    log_file = '/home/logs/'+year_doy+'.log'
     # Open the log file and set parameters
     logging.basicConfig(filename=log_file, level=logging.DEBUG,
                         format='%(asctime)s: %(levelname)s: %(name)s: %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S')
+                        datefmt='%Y-%m-%d %H:%M:%S', filemode='w')
     logging.info('====================================')
     logging.info('STARTING PYRO-PI DATA LOGGER........')
     logging.info('====================================')
@@ -367,15 +367,15 @@ def internet_on():
 
 def main(n_points, sleep_time):  # Log humid & temp & rad and send via cellular connection
     '''
-    RPI turns on 1300 to 1305 each day
-    takes xx measurements 
+    RPI turns on each day
+    takes measurements 
     after which it will send the data.. then shut down
     '''
     # Make/check for data directory for this particular Pi
     data_dir = make_serial_directory()
 
-    # filename is doy
-    filename = str(datetime.datetime.now().timetuple().tm_yday)
+    # filename is year_doy
+    filename = str(datetime.datetime.now().year)+'_'+str(datetime.datetime.now().timetuple().tm_yday)
 
     # Start log file for the day
     start_log(filename)
@@ -393,7 +393,7 @@ def main(n_points, sleep_time):  # Log humid & temp & rad and send via cellular 
         # send the data to AWS (simple case)
         os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'_ht.pkl s3://brent-snow-data')
         os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'_pyr.pkl s3://brent-snow-data')
-        os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'.log s3://brent-snow-data')
+        os.system('/home/pi/.local/bin/aws s3 cp /home/logs/'+filename+'.log s3://brent-snow-data')
     
     else: # more complex case...
         # keep trying until powers off
@@ -402,7 +402,7 @@ def main(n_points, sleep_time):  # Log humid & temp & rad and send via cellular 
             if connected:
                 os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'_ht.pkl s3://brent-snow-data')
                 os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'_pyr.pkl s3://brent-snow-data')
-                os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'.log s3://brent-snow-data')
+                os.system('/home/pi/.local/bin/aws s3 cp /home/logs/'+filename+'.log s3://brent-snow-data')
             else:
                 # aaaand just keeep tryin. hopefully this is minimal..
                 logging.info('Having trouble connecting trying again...')
