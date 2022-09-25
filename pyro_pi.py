@@ -357,7 +357,7 @@ def internet_on():
     Ping google.com to determine if the network connection is up.
     '''
     try:
-        os.system('sudo /opt/qmi_files/quectel-CM/quectel-CM -s my_apn ping -c 1 google.com')
+        os.system('sudo /opt/qmi_files/quectel-CM/quectel-CM -s MY_APN_HERE& ping -c 1 google.com')
         internet_flag = True
     except:
         internet_flag = False
@@ -391,18 +391,18 @@ def main(n_points, sleep_time):  # Log humid & temp & rad and send via cellular 
     connected = internet_on() # ? (T or F)
     if connected is True:
         # send the data to AWS (simple case)
-        os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'_ht.pkl s3://brent-snow-data')
-        os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'_pyr.pkl s3://brent-snow-data')
-        os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'.log s3://brent-snow-data')
+        os.system('aws s3 cp '+data_dir+'/'+filename+'_ht.pkl s3://brent-snow-data')
+        os.system('aws s3 cp '+data_dir+'/'+filename+'_pyr.pkl s3://brent-snow-data')
+        os.system('aws s3 cp '+data_dir+'/'+filename+'.log s3://brent-snow-data')
     
     else: # more complex case...
         # keep trying until powers off
         while connected is False:
             connected = internet_on()
             if connected:
-                os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'_ht.pkl s3://brent-snow-data')
-                os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'_pyr.pkl s3://brent-snow-data')
-                os.system('/home/pi/.local/bin/aws s3 cp '+data_dir+'/'+filename+'.log s3://brent-snow-data')
+                os.system('aws s3 cp '+data_dir+'/'+filename+'_ht.pkl s3://brent-snow-data')
+                os.system('aws s3 cp '+data_dir+'/'+filename+'_pyr.pkl s3://brent-snow-data')
+                os.system('aws s3 cp '+data_dir+'/'+filename+'.log s3://brent-snow-data')
             else:
                 # aaaand just keeep tryin. hopefully this is minimal..
                 logging.info('Having trouble connecting trying again...')
