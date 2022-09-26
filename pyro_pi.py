@@ -406,9 +406,8 @@ def main(n_points, sleep_time):  # Log humid & temp & rad and send via cellular 
                 logging.info('Having trouble connecting trying again...')
             
     # shutdown the pi assuming finished
-    #os.system('sudo shutdown -h now')
-    print('pretend shutdown')
-
+    os.system('sudo shutdown -h now')
+    
 # --------------------------------------------------------------------
 # call main() function to run program
 if __name__ == '__main__':
