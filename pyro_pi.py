@@ -405,9 +405,8 @@ def main(n_points, sleep_time):  # Log humid & temp & rad and send via cellular 
                 # aaaand just keeep tryin. hopefully this is minimal..
                 logging.info('Having trouble connecting trying again...')
             
-    # Changed to not shutdown --> is messing up WittyPi?
     # shutdown the pi assuming finished
-    # os.system('sudo shutdown -h now')
+    os.system('sudo shutdown -h now')
     
 # --------------------------------------------------------------------
 # call main() function to run program
