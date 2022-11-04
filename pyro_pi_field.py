@@ -379,9 +379,6 @@ def main(n_points, sleep_time):  # Log humid & temp & rad and send via cellular 
 
     # filename is time right now
     filename = str(datetime.now())
-
-    # Log the humidity and temperature data 
-    log_humid_temp_data(sleep_time, n_points, data_dir, filename) 
     
     # Log the Pyranometer data 
     log_pyranometer_data(sleep_time, n_points, data_dir, filename)
