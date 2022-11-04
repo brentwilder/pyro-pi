@@ -311,7 +311,7 @@ def make_serial_directory():
     cpuserial = getserial()
     if cpuserial is not None:
         # make sure there is not a / after last folder
-        data_dir = '/home/pi/DATA_' + cpuserial  
+        data_dir = '/home/pi/MOBILE_PI' 
         # check that directory exists and make if needed
         checkOutputDirectory(data_dir)
         logging.info('Saving local data to %s', data_dir)
@@ -379,6 +379,9 @@ def main(n_points, sleep_time):  # Log humid & temp & rad and send via cellular 
 
     # filename is time right now
     filename = str(datetime.now())
+
+    # Log the humidity and temperature data 
+    log_humid_temp_data(sleep_time, n_points, data_dir, filename) 
     
     # Log the Pyranometer data 
     log_pyranometer_data(sleep_time, n_points, data_dir, filename)
@@ -392,7 +395,7 @@ if __name__ == '__main__':
     '''
     # temperature and humidity logging parameters
     sleep_time = 0 # [s] record data every sleep_time seconds
-    n_points = 15  # [points] number of points to record
+    n_points = 30  # [points] number of points to record
 
     # Create infinite while loop to run while in the field.
     # Each file will be on the minute..
